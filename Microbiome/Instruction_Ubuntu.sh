@@ -17,4 +17,15 @@ Rscript binary_partition_by_AIC.R Reference/homogeneous_data.RDS Reference/homog
 Rscript prepare_prediction_data.R Reference/rescaled_data_model.RDS Reference/prepared_reference.RDS
 
 # Part 2. Cross-validation at different NSTD cutoff
+# Starting data: results from Part 1.
+# Expected output:  CV/GCN.PE.CV.RDS
+                    CV/GCN.BM.CV.RDS
+                    CV/GCN.MP_EMP.CV.RDS
+# Part 3. Predicting GCN for SILVA and HMP1 
+
+# Part 4. Microbiome analyses with GCN correction
+
+# Part 5. Making figures and Tables
+Rscript Figure_1_Expectation.R
+#
 
