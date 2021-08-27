@@ -11,3 +11,8 @@
 #                   Reference/homogeneous_models.RDS
 # Fit homogeneous BM and PE models
 Rscript fit_homogeneous_models.R Reference/reference.tre Reference/16S_GCN.txt Reference/homogeneous
+# Binary partition of the phylogeny
+Rscript binary_partition_by_AIC.R Reference/homogeneous_data.RDS Reference/homogeneous_models.RDS Reference/binary_partition.RDS Reference/rescaled_data_model.RDS
+# Prepare prediction reference
+Rscript prepare_prediction_data.R Reference/rescaled_data_model.RDS Reference/prepared_reference.RDS
+
