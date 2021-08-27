@@ -16,3 +16,5 @@ Rscript binary_partition_by_AIC.R Reference/homogeneous_data.RDS Reference/homog
 # Prepare prediction reference
 Rscript prepare_prediction_data.R Reference/rescaled_data_model.RDS Reference/prepared_reference.RDS
 
+# Part 2. Cross-validation at different NSTD cutoff
+
