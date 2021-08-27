@@ -26,6 +26,19 @@ Rscript prepare_prediction_data.R Reference/rescaled_data_model.RDS Reference/pr
 # Part 4. Microbiome analyses with GCN correction
 
 # Part 5. Making figures and Tables
+# Figure 1 and 2 
+# Starting data:
+# Expected output:  Fig_1.png Fig_1.pdf
 Rscript Figure_1_Expectation.R
+Rscript Figure_2_GCN_Classification.R
+
+# Figure 3 and 4
+# Starting data:
+# Expected output:  
+Rscript Figure_3_Abundance.R
+Rscript Figure_4_Beta_diversity_Bray.R
+Rscript Figure_S1.R
+Rscript Figure_S2_Reference_insertion.R
+Rscript Figure_S3_distance_between_taxonomic_group.R
 #
 
