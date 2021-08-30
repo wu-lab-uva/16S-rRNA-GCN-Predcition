@@ -1,8 +1,7 @@
 #
+library(RasperGade16S)
 library(ggplot2)
 library(ggpubr)
-# functions to be added
-source("added_functions.R")
 # load data
 cat("Loading data\n")
 #

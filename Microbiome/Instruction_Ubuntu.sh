@@ -43,8 +43,13 @@ Rscript Figure_1_Expectation.R
 Rscript Figure_2_GCN_Classification.R
 
 # Figure 3
-# Starting data:
-# Expected output:  
+# Starting data:  CV/GCN.PE.CV.RDS
+#
+#
+#
+#
+#
+# Expected output: Fig_3.png Fig_3.pdf
 Rscript Figure_3_Abundance.R
 # Figure 4
 Rscript Figure_4_Beta_diversity_Bray.R
