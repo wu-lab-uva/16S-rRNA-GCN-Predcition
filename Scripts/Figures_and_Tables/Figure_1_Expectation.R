@@ -1,20 +1,20 @@
-#
+# Load required packages
 library(RasperGade)
 library(ggplot2)
 library(ggpubr)
-#
+# Read in trait values
 pe.trait = readRDS("CV/Baseline.trait.RDS")
 min.trait = min(pe.trait)
-#
+# Set NSTD thresholds
 NSTD.cutoff = 10^seq(-3,0,length.out = 10)[1:9]
 true.NSTD.cutoff = c(0,NSTD.cutoff[-1])
-#
+# Read in CV results
 CV.BM = readRDS("CV/Baseline.BM.CV.RDS")
 CV.PE = readRDS("CV/Baseline.PE.CV.RDS")
 CV.MP_EMP = readRDS("CV/Baseline.MP_EMP.CV.RDS")
-#
+# Read in NSTD at different threshold
 CV.NSTD = readRDS("CV/CV.NSTD.RDS")
-#
+# Estimate uncertainty
 CV.uncertainty = lapply(1:length(CV.BM),function(i){
   sapply(1:length(CV.PE[[i]]),function(j){
     sapply(c(list(HomoPE=CV.PE[[i]][[j]],HomoBM=CV.BM[[i]][[j]]),CV.MP_EMP[[i]][[j]]),function(x){
@@ -33,7 +33,7 @@ CV.uncertainty = lapply(1:length(CV.BM),function(i){
     })
   })
 })
-#
+# Get classification profile
 this.alpha = 0.05
 CV.error = lapply(1:length(CV.BM),function(i){
   lapply(1:length(CV.PE[[i]]),function(j){
@@ -59,7 +59,7 @@ CV.error = lapply(1:length(CV.BM),function(i){
     })
   })
 })
-#
+# Calculate precision
 CV.precision = lapply(CV.error,function(res){
   sapply(res,function(xx){
     sapply(xx,function(xxx){
@@ -67,7 +67,7 @@ CV.precision = lapply(CV.error,function(res){
     })
   })
 })
-#
+# Calculate recall
 CV.recall = lapply(CV.error,function(res){
   sapply(res,function(xx){
     sapply(xx,function(xxx){
@@ -75,7 +75,7 @@ CV.recall = lapply(CV.error,function(res){
     })
   })
 })
-#
+# Calculate R2
 CV.R2CV = lapply(1:length(CV.BM),function(i){
   sapply(1:length(CV.PE[[i]]),function(j){
     sapply(c(list(HomoPE=CV.PE[[i]][[j]],HomoBM=CV.BM[[i]][[j]]),CV.MP_EMP[[i]][[j]]),function(x){
@@ -96,7 +96,7 @@ CV.R2CV = lapply(1:length(CV.BM),function(i){
     })
   })
 })
-# Figure 1
+# Make Figure 1
 method2show = c("HomoPE","HomoBM","HomoMP","HomoEMP")
 label2show = c(HomoPE = "RasperGade16S (PE)",
            HomoBM = "PICRUST2 (pic)",
@@ -135,7 +135,7 @@ all.line.data = do.call(rbind,lapply(method2show,function(x){
   }))
   return(this.method.res)
 }))
-#
+# Panel D
 fprecision.plot = ggplot(mapping = aes(group=model,color=model),
                          data=all.line.data)+
   geom_line(mapping = aes(x=NSTD,y=precision),
@@ -154,7 +154,7 @@ fprecision.plot = ggplot(mapping = aes(group=model,color=model),
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())
-#
+# Panel C
 frecall.plot =ggplot(mapping = aes(group=model,color=model),
                      data=all.line.data)+
   geom_line(mapping = aes(x=NSTD,y=recall),
@@ -173,7 +173,7 @@ frecall.plot =ggplot(mapping = aes(group=model,color=model),
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())
-#
+# Panel B
 R2.plot =ggplot(mapping = aes(group=model,color=model),
                 data=all.line.data)+
   geom_line(mapping = aes(x=NSTD,y=R2),
@@ -192,7 +192,7 @@ R2.plot =ggplot(mapping = aes(group=model,color=model),
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())
-#
+# Panel A
 probs.plot = ggplot(mapping = aes(group=model,color=model),
                     data=all.line.data)+
   geom_line(mapping = aes(x=NSTD,y=probs),
@@ -210,7 +210,7 @@ probs.plot = ggplot(mapping = aes(group=model,color=model),
                      sec.axis = sec_axis(name = "Confidence",trans = ~1-.)
                      )+
   guides(color=guide_legend(nrow=2,byrow = TRUE))+
-  xlab("Mean NSTD")+#ylab("Uncertainty\n(Predicted uncertainty)")+
+  xlab("Mean NSTD")+
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())
