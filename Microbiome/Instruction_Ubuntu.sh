@@ -58,24 +58,36 @@ Rscript Figure_5_EBI_NSTI_Biomes.R
 # Starting data:  Reference/homogeneous_data.RDS
 #                 Reference/taxids.RDS
 #                 Reference/lineage_table.RDS
-# Expected output Fig_S1.png Fig_S1.pdf
+# Expected output:  Fig_S1.png Fig_S1.pdf
 Rscript Figure_S1_Rate_heterogeneity.R
 
 # Supplementary Figure 2
 # Starting data:  Reference/prepared_reference.RDS
 #                 Reference/taxids.RDS
 #                 Reference/lineage_table.RDS
-# Expected output Fig_S2.pdf
+# Expected output:  Fig_S2.pdf
 Rscript Figure_S2_Reference_insertion.R
 
 # Supplementary Figure 3
 # Starting data:  Reference/reference.tre
 #                 Reference/taxids.RDS
 #                 Reference/lineage_table.RDS
-# Expected output Fig_S3.png Fig_S3.pdf
+# Expected output:  Fig_S3.png Fig_S3.pdf
 Rscript Figure_S3_distance_between_taxonomic_group.R
 
 # Table 1
+# Starting data:  Reference/homogeneous_data.RDS
+#                 Reference/homogeneous_models.RDS
+#                 Reference/binary_partition.RDS
+# Expected output:  Table_1.txt
+Rscript Table_1_Model_selection.R
 
 # Table 2
+# Starting data:  Reference/prepared_reference.RDS
+#                 SILVA/SILVA.pred.GCN.RDS.locations.RDS
+#                 SILVA/SILVA.pred.GCN.RDS.RDS
+#                 SILVA/SILVA.NSTD.RDS
+#                 SILVA/SILVA132NR99.sorted.id.3level.txt
+# Expected output:  Table_2.txt 
+Rscript Table_2_SILVA_summary.R
 
