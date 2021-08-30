@@ -18,4 +18,4 @@ To reproduce the results in the preprint on macOS or Linux systems, follow the i
 
 `Microbiome/Instruction_Ubuntu.sh`
 
-For Windows users, the reproduction of all figures can be done by sourcing the scripts under Figures_and_Tables in RStudio.
+For Windows users, the reproduction of all figures can be done by sourcing the scripts under Scripts/Figures_and_Tables/ in RStudio.
