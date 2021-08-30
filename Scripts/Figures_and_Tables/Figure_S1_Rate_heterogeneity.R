@@ -1,28 +1,26 @@
-#
+# Load required packages
 library(RasperGade)
-library(castor)
 library(ggplot2)
-#
-#
-tree = read.tree("Reference/reference.tre")
+# Read in data
+tree = readRDS("Reference/homogeneous_data.RDS")$phy
 trait = readRDS("Reference/homogeneous_data.RDS")$dat
-adj.tree = readRDS("Reference/rescaled_data_model.RDS")$phy
 taxid =readRDS("Reference/taxids.RDS")[tree$tip.label]
 taxlin =readRDS("Reference/lineage_table.RDS")
+# Get taxonomy information for each tip
 tip.tax = sapply(tree$tip.label,function(x){
   sapply(taxlin[taxlin$taxid==as.character(taxid[x]),],as.character)
 })
-#
+# Set up taxonomic levels
 tax.level = c("phylum","class","order","family","genus","species")
 higher.tax.level = c("superkingdom","phylum","class","order","family","genus")
 names(higher.tax.level) = tax.level
-#
+# Unique taxonomic groups in each level
 tax.groups = lapply(tax.level,function(x){
   tax = unique(tip.tax[x,])
   tax[!is.na(tax)]
 })
 names(tax.groups) = tax.level
-#
+# Get node index for each genus' MRCA
 genus.node = sapply(tax.groups$genus,function(x){
   this.tip = which(tip.tax["genus",]==x)
   if(length(this.tip)<10) return(NA)
@@ -30,13 +28,15 @@ genus.node = sapply(tax.groups$genus,function(x){
 })
 names(genus.node) = tax.groups$genus
 genus.node = genus.node[!is.na(genus.node)]
+# Calculate average rate as the variance of PIC
 ave.rate = sapply(names(genus.node),function(x){
   subtree = extract.clade(tree,genus.node[x])
   subtree = drop.tip(subtree,subtree$tip.label[tip.tax["genus",subtree$tip.label]!=x])
   var(pic(phy = subtree,x = trait[subtree$tip.label]))
 })
+# Compile rate data 
 rate.data = data.frame(rate=ave.rate,log10rate=log10(ave.rate+0.1),level="genus")
-#
+# Make Figure S1
 rate.plot = ggplot()+
   geom_histogram(mapping = aes(x=log10rate),binwidth = 0.25,data=rate.data)+
   scale_x_continuous(breaks = seq(-1,6,1),

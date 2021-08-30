@@ -209,7 +209,7 @@ probs.plot = ggplot(mapping = aes(group=model,color=model),
                      sec.axis = sec_axis(name = "Confidence",trans = ~1-.)
   )+
   guides(color=guide_legend(nrow=2,byrow = TRUE))+
-  xlab("Mean NSTD")+#ylab("Predicted uncertainty")+
+  xlab("Mean NSTD")+
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())

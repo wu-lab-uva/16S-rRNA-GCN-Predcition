@@ -1,24 +1,27 @@
-#
+# Load required packages
 library(ape)
 library(castor)
-#
+library(ggplot2)
+library(ggpubr)
+# Read in data
 tree = read.tree("Reference/reference.tre")
 taxid =readRDS("Reference/taxids.RDS")[tree$tip.label]
 taxlin =readRDS("Reference/lineage_table.RDS")
+# Compile tip taxonomy
 tip.tax = sapply(tree$tip.label,function(x){
   sapply(taxlin[taxlin$taxid==as.character(taxid[x]),],as.character)
 })
-#
+# Set up taxonomic levels
 tax.level = c("phylum","class","order","family","genus","species")
 higher.tax.level = c("superkingdom","phylum","class","order","family","genus")
 names(higher.tax.level) = tax.level
-#
+# Get unique taxonomic group in each level
 tax.groups = lapply(tax.level,function(x){
   tax = unique(tip.tax[x,])
   tax[!is.na(tax)]
 })
 names(tax.groups) = tax.level
-#
+# Get NSTD by taxonomic level
 all.NSTD.by.group = lapply(tax.level,function(x){
   res = lapply(tax.groups[[x]],function(xx){
     g1 = which(tip.tax[x,] == xx)
@@ -34,7 +37,7 @@ all.NSTD.by.group = lapply(tax.level,function(x){
   names(res) = tax.groups[[x]]
   return(list(level=x,NSTD=res))
 })
-#
+# Calculate the mean NSTD
 mean.NSTD.by.group = lapply(all.NSTD.by.group,function(x){
   res = do.call(c,lapply(x$NSTD,function(xx){
     if(length(xx)<1) return(numeric(0))
@@ -42,19 +45,12 @@ mean.NSTD.by.group = lapply(all.NSTD.by.group,function(x){
   }))
   return(list(level=x$level,NSTD=res))
 })
-#
-NSTD.by.group.data = do.call(rbind,lapply(all.NSTD.by.group,function(x){
-  data.frame(NSTD=do.call(c,x$NSTD),level=x$level,stringsAsFactors = FALSE)
-}))
+# Compile NSTD data
 mean.NSTD.by.group.data = do.call(rbind,lapply(mean.NSTD.by.group,function(x){
   data.frame(NSTD=x$NSTD,level=x$level,stringsAsFactors = FALSE)
 }))
-NSTD.by.group.data$level = factor(NSTD.by.group.data$level,levels = tax.level)
 mean.NSTD.by.group.data$level = factor(mean.NSTD.by.group.data$level,levels = tax.level)
-
-#
-library(ggplot2)
-library(ggpubr)
+# Make Figure S3
 NSTD.plot = ggplot()+
   geom_violin(mapping = aes(x=level,y=NSTD),
               draw_quantiles = c(0.25,0.5,0.75),

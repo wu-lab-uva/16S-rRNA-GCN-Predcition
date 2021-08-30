@@ -1,19 +1,18 @@
-# Plotting reference phylogeny and SILVA insertion
+# Load required packages
 library(ggplot2)
 library(ggtree)
 library(RasperGade)
-source("RasperGade_node_tracking.R")
-#
+# Read in datas
 reference.data = readRDS("Reference/prepared_reference.RDS")
-#
 taxid =readRDS("Reference/taxids.RDS")[reference.data$original$tip.label]
 taxlin =readRDS("Reference/lineage_table.RDS")
+# Compile tip taxonomy
 tip.tax = sapply(reference.data$original$tip.label,function(x){
   sapply(taxlin[taxlin$taxid==as.character(taxid[x]),],as.character)
 })
 #
 tip.tax[is.na(tip.tax)] = "Unassigned"
-#
+# Find maximal monophyletic clades
 tips.per.node = get_descendant_tips_for_each_node(reference.data$original)
 family.per.node = lapply(tips.per.node,function(x){
   unique(tip.tax["family",x])
@@ -30,7 +29,7 @@ maximal.mono.size = sapply(maximal.mono.node,function(i){
   length(tips.per.node[[i]])
 })
 maximal.mono.family = sapply(family.per.node[maximal.mono.node],identity)
-#
+# Compile tree data
 reference.tree = reference.data$original
 reference.tree$edge.length = sqrt(reference.data$original$edge.length)
 attr(reference.tree,"rate") =
@@ -40,7 +39,7 @@ attr(reference.tree,"rate") =
                 if(is.na(this.parent)) return("0")
                 this.rate = as.character(as.numeric(reference.data$scale.branch[this.parent]>2))
               })
-#
+# Make Figure S2
 reference.SILVA.plot = ggtree(tr = reference.tree,
                         mapping = aes(color=rate),layout = "rectangular")+
   scale_color_manual(values = c("0"="black","1"="red"),
@@ -52,11 +51,11 @@ reference.SILVA.plot = ggtree(tr = reference.tree,
         legend.key.width = unit(0.75, 'in'), #change legend key width
         legend.title = element_text(size=28), #change legend title font size
         legend.text = element_text(size=24)) #change legend text font size
-#
+# Label families
 for(i in which(maximal.mono.size>=10)){
   reference.SILVA.plot = reference.SILVA.plot + geom_cladelabel(node=maximal.mono.node[i],label = maximal.mono.family[i])
 }
-#
+# Save large PDF
 ggplot2::ggsave(filename = "Fig_S2.pdf",plot = reference.SILVA.plot,device = "pdf",
        width = 12,height = 96,units = "in",scale = 1,limitsize = FALSE)
 #
