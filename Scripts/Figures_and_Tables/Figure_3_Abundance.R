@@ -17,9 +17,6 @@ cat("Data simulated\n")
 #
 CV.sim.RAD = readRDS("Sim/Sim_1_1RA.RDS")
 cat("RAD calculated\n")
-#
-library(ggplot2)
-library(ggpubr)
 # Theoretical fold-change by abundance
 theoretical_fold_change = function(abundance,ACN.fold){
   this.fold = 1/(ACN.fold+(1-ACN.fold)*abundance)
@@ -58,23 +55,7 @@ theoretical.GCN.plot = ggplot(data=theoretical.GCN.data)+
   theme(legend.position = "bottom",
         panel.background = element_blank(),
         axis.line = element_line())
-#
-case.study = lapply(1:(length(CV.sim.RAD)),function(i){
-  this.cutoff.data = lapply(1:length(CV.sim.RAD[[i]]),function(j){
-    this.batch = CV.sim.RAD[[i]][[j]]
-    all.OTUs = unique(do.call(c,lapply(this.batch,function(x){names(x$true)})))
-    total.count = numeric(length(all.OTUs))
-    names(total.count) = all.OTUs
-    hit.count = total.count
-    for(x in this.batch){
-      res= coverage_length(rad = x$true,CI = x$CI[,names(x$true)],detail = TRUE)
-      total.count[names(x$true)] = total.count[names(x$true)]+1
-      hit.count[names(x$true)] = hit.count[names(x$true)]+unname(res)
-    }
-    return(data.frame(total=total.count,hit=hit.count,cp =hit.count/total.count))
-  })
-})
-#
+# Relative abundance results
 CV.RAD.data = lapply(1:(length(CV.sim.RAD)),function(i){
   this.cutoff.data = do.call(rbind,lapply(1:length(CV.sim.RAD[[i]]),function(j){
     this.batch = CV.sim.RAD[[i]][[j]]
@@ -210,8 +191,8 @@ top.plot = ggplot(mapping = aes(group=method,color=method))+
         panel.background = element_blank(),
         axis.line = element_line())
 #
-HMP.abundance = readRDS("HMP_v13_batch00/HMP_v13_HQ.abundance.RDS")
-HMP.RAD = readRDS("HMP_v13_batch00/HMP_v13_HQ.RAD.RDS")
+HMP.abundance = readRDS("HMP/HMP_v13_HQ.abundance.RDS")
+HMP.RAD = readRDS("HMP/HMP_v13_HQ.RAD.RDS")
 #
 HMP.RAD.data = do.call(rbind,lapply(1:length(HMP.abundance),function(i){
   dx = HMP.abundance[[i]]/HMP.RAD[[i]]$rad[names(HMP.abundance[[i]])]
@@ -221,23 +202,6 @@ HMP.RAD.data = do.call(rbind,lapply(1:length(HMP.abundance),function(i){
   support = HMP.RAD[[i]]$support[1,1]
   return(data.frame(dx = mean.dx,cp=gene.CI,agree=top.agree,support = support))
 }))
-#
-HMP.dx.plot = ggplot(data = HMP.RAD.data)+
-  geom_histogram(mapping = aes(x=dx))+
-  xlab("Mean fold-change in relative abundance")+ylab("Count")+
-  theme(legend.position = "none",
-        panel.background = element_blank(),
-        axis.line = element_line())
-#
-HMP.cp.plot = ggplot(data = HMP.RAD.data)+
-  geom_histogram(mapping = aes(x=cp))+
-  geom_vline(xintercept = 0.95,color="red",linetype="dashed")+
-  xlab("Coverage probability to gene abundance")+ylab("Count")+
-  scale_x_continuous(breaks = seq(0,1,0.25),
-                     labels = paste0(as.character(round(100*seq(0,1,0.25))),"%"))+
-  theme(legend.position = "none",
-        panel.background = element_blank(),
-        axis.line = element_line())
 #
 HMP.ecdf.data = data.frame(cp=seq(0,1,0.001),
                            ecdf = sapply(seq(0,1,0.001),function(x){

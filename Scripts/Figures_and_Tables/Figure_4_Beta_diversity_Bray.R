@@ -1,8 +1,8 @@
 #
+library(RasperGade16S)
+library(phyloseq)
 library(ggplot2)
 library(ggpubr)
-# functions to be added
-source("added_functions.R")
 # read in command arguments
 arg = commandArgs(TRUE)
 # setup parallel running
@@ -15,7 +15,7 @@ if(Sys.info()["sysname"]=='Windows'){
 # load data
 cat("Loading data\n")
 #
-NSTD.cutoff = 10^seq(-3,0,length.out = 10)
+NSTD.cutoff = 10^seq(-3,0,length.out = 10)[1:9]
 true.NSTD.cutoff = c(0,NSTD.cutoff[-1])
 #
 trait = readRDS("Reference/homogeneous_data.RDS")$dat
