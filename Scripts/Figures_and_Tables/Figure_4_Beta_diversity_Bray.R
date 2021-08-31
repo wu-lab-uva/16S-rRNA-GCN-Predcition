@@ -1,6 +1,7 @@
 #
 library(RasperGade16S)
 library(phyloseq)
+library(vegan)
 library(ggplot2)
 library(ggpubr)
 # read in command arguments
@@ -105,10 +106,16 @@ example.plot = ggplot()+
                               Cell="True cell abundance"))+
   guides(shape=guide_legend(title="Method",order = 1),color=guide_legend(title = "Environment",order = 2))+
   xlab("PC1")+ylab("PC2")+
-  theme(legend.position = c(0.9,0.15),legend.box="vertical",
-        panel.background = element_blank(),
-        axis.line = element_line())
-#
+  theme(#legend.position = c(0.9,0.15),legend.box="vertical",
+    legend.position = c(0.7,0.08),legend.box="horizontal",
+    panel.background = element_blank(),
+    axis.line = element_line(),
+    legend.key.size = unit(0.1, 'in'), #change legend key size
+    legend.key.height = unit(0.1, 'in'), #change legend key height
+    legend.key.width = unit(0.1, 'in'), #change legend key width
+    legend.title = element_text(size=8), #change legend title font size
+    legend.text = element_text(size=6),
+    legend.background = element_blank())
 beta.data = lapply(1:length(CV.sim.beta),function(i){
   good.sample = which(sapply(CV.sim.beta[[i]],function(x){!is.null(x$gene)}))
   this.cutoff = CV.sim.beta[[i]][good.sample]
@@ -158,22 +165,12 @@ PERMANOVA.data = lapply(1:length(CV.sim.PERMANOVA),function(i){
                NSTD = mean(this.NSTD),improvement=unname(1-dR2[2]/dR2[1]))
   }))
 })
-rf.data = lapply(1:length(CV.sim.rf),function(i){
-  this.cutoff = CV.sim.rf[[i]]
-  do.call(rbind,lapply(1:length(this.cutoff),function(j){
-    this.batch = this.cutoff[[j]]
-    this.sim = CV.community.sim[[i]][[j]]
-    this.group = do.call(c,lapply(this.sim,function(x){x$group}))
-    this.group = this.group[unique(names(this.group))]
-    this.feature = names(which(this.group>0))
-    gene.recall = sum(which(names(this.batch$gene$rank)%in%this.feature)<=10)
-    cell.recall = sum(which(names(this.batch$cell$rank)%in%this.feature)<=10)
-    correct.recall = sum(which(names(this.batch$correct$correct$rank)%in%this.feature)<=10)
-    this.NSTD = sapply(CV.community.sim[[i]][[j]],function(x){
-      exp(sum(log(CV.adjusted.NSTD[[i]][2,names(x$cell)])*relative_abundance(x$cell)))
-    })
-    return(data.frame(gene=gene.recall,cell=cell.recall,correct=correct.recall,NSTD=mean(this.NSTD)))
-  }))
+#
+empirical.top = lapply(1:length(CV.sim.diff),function(i){
+  this.cutoff = CV.sim.diff[[i]]
+  lapply(this.cutoff,function(this.batch){
+    names(sort(abs(log(this.batch$cell$diff)),decreasing = TRUE))[1:10]
+  })
 })
 #
 diff.data = lapply(1:length(CV.sim.diff),function(i){
@@ -186,6 +183,24 @@ diff.data = lapply(1:length(CV.sim.diff),function(i){
                ddiff = exp(abs(log(this.batch$cell$diff/this.batch$gene$diff))))
   }))
 }) 
+#
+rf.data = lapply(1:length(CV.sim.rf),function(i){
+  this.cutoff = CV.sim.rf[[i]]
+  do.call(rbind,lapply(1:length(this.cutoff),function(j){
+    this.batch = this.cutoff[[j]]
+    this.sim = CV.community.sim[[i]][[j]]
+    this.group = do.call(c,lapply(this.sim,function(x){x$group}))
+    this.group = this.group[unique(names(this.group))]
+    this.feature = empirical.top[[i]][[j]]#names(which(this.group>0))
+    gene.recall = sum(which(names(this.batch$gene$rank)%in%this.feature)<=10)
+    cell.recall = sum(which(names(this.batch$cell$rank)%in%this.feature)<=10)
+    correct.recall = sum(which(names(this.batch$correct$correct$rank)%in%this.feature)<=10)
+    this.NSTD = sapply(CV.community.sim[[i]][[j]],function(x){
+      exp(sum(log(CV.adjusted.NSTD[[i]][2,names(x$cell)])*relative_abundance(x$cell)))
+    })
+    return(data.frame(gene=gene.recall,cell=cell.recall,correct=correct.recall,NSTD=mean(this.NSTD)))
+  }))
+})
 #
 PERMANOVA.plot = ggplot()+
   geom_point(mapping=aes(x=R2.cell,y=R2.gene),data = PERMANOVA.data[[1]],alpha=0.5)+
@@ -223,23 +238,19 @@ pvalue.plot = ggplot()+
         panel.background = element_blank(),
         axis.line = element_line())
 #
-right.panel = ggarrange(plotlist = list(PERMANOVA.plot,diff.plot),
-                        labels = c("B","C"),ncol = 1,nrow = 2,
-                        align = "hv",common.legend = FALSE)
-#
-combined.plot = ggarrange(plotlist = list(example.plot,right.panel),
-                          labels = c("A",""),ncol = 2,nrow = 1,
+combined.plot = ggarrange(plotlist = list(example.plot,PERMANOVA.plot,diff.plot),
+                          labels = c("AUTO"),ncol = 3,nrow = 1,
                           align = "hv",common.legend = FALSE)
 if(Sys.info()["sysname"]=='Windows'){
   ggsave(filename = "Fig_4.png",plot = combined.plot,device = "png",
-         width = 9,height = 6,units = "in",
+         width = 9,height = 3,units = "in",
          dpi = "print",scale = 1.5,type = "cairo")
 }else{
   ggsave(filename = "Fig_4.png",plot = combined.plot,device = "png",
-         width = 9,height = 6,units = "in",
+         width = 9,height = 3,units = "in",
          dpi = "print",scale = 1.5)
 }
 ggsave(filename = "Fig_4.pdf",plot = combined.plot,device = "pdf",
-       width = 9,height = 6,units = "in",scale = 1.5)
+       width = 9,height = 3,units = "in",scale = 1.5)
 
 
