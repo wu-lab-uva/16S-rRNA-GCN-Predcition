@@ -169,7 +169,7 @@ PERMANOVA.data = lapply(1:length(CV.sim.PERMANOVA),function(i){
 empirical.top = lapply(1:length(CV.sim.diff),function(i){
   this.cutoff = CV.sim.diff[[i]]
   lapply(this.cutoff,function(this.batch){
-    names(sort(abs(log(this.batch$cell$diff)),decreasing = TRUE))[1:10]
+    names(this.batch$cell$diff)[which(this.batch$cell$test<0.05)]
   })
 })
 #
@@ -192,9 +192,9 @@ rf.data = lapply(1:length(CV.sim.rf),function(i){
     this.group = do.call(c,lapply(this.sim,function(x){x$group}))
     this.group = this.group[unique(names(this.group))]
     this.feature = empirical.top[[i]][[j]]#names(which(this.group>0))
-    gene.recall = sum(which(names(this.batch$gene$rank)%in%this.feature)<=10)
-    cell.recall = sum(which(names(this.batch$cell$rank)%in%this.feature)<=10)
-    correct.recall = sum(which(names(this.batch$correct$correct$rank)%in%this.feature)<=10)
+    gene.recall = sum(which(names(this.batch$gene$rank)%in%this.feature)<=length(this.feature))/length(this.feature)
+    cell.recall = sum(which(names(this.batch$cell$rank)%in%this.feature)<=length(this.feature))/length(this.feature)
+    correct.recall = sum(which(names(this.batch$correct$correct$rank)%in%this.feature)<=length(this.feature))/length(this.feature)
     this.NSTD = sapply(CV.community.sim[[i]][[j]],function(x){
       exp(sum(log(CV.adjusted.NSTD[[i]][2,names(x$cell)])*relative_abundance(x$cell)))
     })

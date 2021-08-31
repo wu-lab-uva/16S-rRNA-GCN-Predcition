@@ -62,8 +62,6 @@ Rscript Figure_3_Abundance.R
 #                 Sim/Sim_5_2beta.RDS
 #                 Sim/Sim_5_2PERMANOVA.RDS
 #                 Sim/Sim_5_2_diff.RDS
-#                 HMP/HMP_v13_HQ.abundance.RDS
-#                 HMP/HMP_v13_HQ.RAD.RDS
 # Expected output: Fig_4.png Fig_4.pdf
 Rscript Figure_4_Beta_diversity_Bray.R
 
