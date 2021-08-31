@@ -116,6 +116,8 @@ example.plot = ggplot()+
     legend.title = element_text(size=8), #change legend title font size
     legend.text = element_text(size=6),
     legend.background = element_blank())
+#
+rm(list=c("i","j"))
 beta.data = lapply(1:length(CV.sim.beta),function(i){
   good.sample = which(sapply(CV.sim.beta[[i]],function(x){!is.null(x$gene)}))
   this.cutoff = CV.sim.beta[[i]][good.sample]
@@ -166,15 +168,13 @@ PERMANOVA.data = lapply(1:length(CV.sim.PERMANOVA),function(i){
   }))
 })
 #
-empirical.top = lapply(1:length(CV.sim.diff),function(i){
+top.foldchange = lapply(1:length(CV.sim.diff),function(i){
   this.cutoff = CV.sim.diff[[i]]
-  lapply(this.cutoff,function(this.batch){
-    p.order = sort(this.batch$cell$test,decreasing = FALSE,index.return=TRUE)$ix
-    p.acc = sapply(1:length(p.order),function(i){
-      sum(this.batch$cell$test[p.order[1:i]])
-    })
-    num.top = max(which(p.acc<0.05))
-    names(this.batch$cell$diff)[p.order[1:num.top]]
+  lapply(1:length(this.cutoff),function(j){
+    this.batch = this.cutoff[[j]]
+    gene.top = names(sort(abs(log(this.batch$gene$diff)),decreasing = TRUE)[1:10])
+    cell.top = names(sort(abs(log(this.batch$cell$diff)),decreasing = TRUE)[1:10])
+    return(list(gene=gene.top,cell=cell.top,hit=sum(gene.top%in%cell.top)))
   })
 })
 #
@@ -196,7 +196,7 @@ rf.data = lapply(1:length(CV.sim.rf),function(i){
     this.sim = CV.community.sim[[i]][[j]]
     this.group = do.call(c,lapply(this.sim,function(x){x$group}))
     this.group = this.group[unique(names(this.group))]
-    this.feature = empirical.top[[i]][[j]]#names(which(this.group>0))
+    this.feature = names(this.batch$cell$rank)[1:10]
     gene.recall = sum(which(names(this.batch$gene$rank)%in%this.feature)<=10)/length(this.feature)
     cell.recall = sum(which(names(this.batch$cell$rank)%in%this.feature)<=10)/length(this.feature)
     correct.recall = sum(which(names(this.batch$correct$correct$rank)%in%this.feature)<=10)/length(this.feature)
